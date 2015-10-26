@@ -8,27 +8,31 @@ import requests
 
 
 GREENKEEPER_BOT = 'greenkeeperio-bot'
-ACCESS_TOKEN = os.environ.get('GITHUB_ACCESS_TOKEN')
 
 owner = 'dineshs91'
 repo = 'devlog'
 
 def merge_pr(pull_number, sha, title):
+    # Parsing config
+    cfg = json.load(open('green.cfg'))
+    access_token = cfg.get('access_token')
+
     data = json.dumps({
         'commit_message': title,
         'sha': sha
     })
 
     headers = {
-        'Authorization': 'token %s' %ACCESS_TOKEN,
+        'Authorization': 'token %s' %access_token,
     }
     
+    print access_token
+
     resp = requests.put('https://api.github.com/repos/%s/%s/pulls/%d/merge' %(owner, repo, pull_number), 
                         data=data,
                         headers=headers)
     resp_text = json.loads(resp.text)
-    if isinstance(resp_text, dict):
-        print resp_text.message
+    print resp_text
         
     # Delay of 2 mins (120 secs)
     time.sleep(120)
