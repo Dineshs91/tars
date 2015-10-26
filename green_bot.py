@@ -17,6 +17,9 @@ def merge_pr(pull_number, sha, title):
     cfg = json.load(open('green.cfg'))
     access_token = cfg.get('access_token')
 
+    # Process title to remove any use of breaks build
+    title = title.replace('breaks build 🚨', 'update')
+
     data = json.dumps({
         'commit_message': title,
         'sha': sha
