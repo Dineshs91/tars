@@ -29,8 +29,6 @@ def merge_pr(pull_number, sha, title):
     headers = {
         'Authorization': 'token %s' %access_token,
     }
-    
-    print access_token
 
     resp = requests.put('https://api.github.com/repos/%s/%s/pulls/%d/merge' %(owner, repo, pull_number), 
                         data=data,
