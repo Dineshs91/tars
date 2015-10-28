@@ -16,7 +16,7 @@ repo = 'devlog'
 
 
 def add_log(msg):
-    print '[%s] %s' %(time.asctime(), msg)
+    print '[%s]: %s' %(time.asctime(), msg)
 
 # Check if bot has already added a comment
 def has_bot_comment(pull_number):
@@ -83,6 +83,8 @@ def check_and_merge(pull_number, ref, sha, title):
         merge_pr(pull_number, sha, title)
 
 def main():
+    add_log('Job started')
+
     # Parsing config
     cfg = json.load(open('green.cfg'))
     access_token = cfg.get('access_token')
@@ -92,13 +94,13 @@ def main():
         return
 
     pull_requests = requests.get('https://api.github.com/repos/%s/%s/pulls' %(owner, repo))
-    
     pr_content = json.loads(pull_requests.text)
+
     if isinstance(pr_content, dict):
         add_log(pull_requests.status_code + pr_content.get('message'))
         return
-    for i in range(len(pr_content)):
-        content = pr_content[i]
+
+    for content in pr_content:
         user = content.get('user').get('login')
         pull_number = content.get('number')
         ref = content.get('head').get('ref').encode('utf8')
@@ -107,6 +109,8 @@ def main():
     
         if user == GREENKEEPER_BOT:
             check_and_merge(pull_number, ref, sha, title)
+
+    add_log('Job ended')
             
 if __name__ == "__main__":
     main()
