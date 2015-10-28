@@ -15,6 +15,9 @@ owner = 'dineshs91'
 repo = 'devlog'
 
 
+def add_log(msg):
+    print '[%s] %s' %(time.asctime(), msg)
+
 # Check if bot has already added a comment
 def has_bot_comment(pull_number):
     resp = requests.post('https://api.github.com/repos/%s/%s/issues/%d/comments' %(owner, repo, pull_number))
@@ -60,7 +63,7 @@ def merge_pr(pull_number, sha, title):
                         data=data,
                         headers=headers)
     resp_text = json.loads(resp.text)
-    print resp_text
+    add_log(resp_text)
 
     if resp_text.get('message') == 'Pull Request is not mergeable' and not has_bot_comment:
         create_comment(pull_number, "This PR cannot be merged by me(bot).", access_token)
@@ -79,11 +82,10 @@ def check_and_merge(pull_number, ref, sha, title):
 
 def main():
     pull_requests = requests.get('https://api.github.com/repos/%s/%s/pulls' %(owner, repo))
-    print '[%s] ' %pull_requests.status_code,
     
     pr_content = json.loads(pull_requests.text)
     if isinstance(pr_content, dict):
-        print pull_requests.status_code, pr_content.get('message')
+        add_log(pull_requests.status_code + pr_content.get('message'))
         return
     for i in range(len(pr_content)):
         content = pr_content[i]
