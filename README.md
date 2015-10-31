@@ -6,8 +6,11 @@ Have a file ```tars.cfg``` with the below config.
 
 ```
 {
-    access_token: "token"_
+    access_token: "token"
 }
 ```
 
-This is access token should be obtained from github.
+This access token should be obtained from github.
+
+Tars can be configured to run as a cron job. There is a great site [crontab.guru](http://crontab.guru/) to find 
+out a suitable cron schedule expression.
