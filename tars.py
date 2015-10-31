@@ -86,7 +86,7 @@ def main():
     add_log('Job started')
 
     # Parsing config
-    cfg = json.load(open('green.cfg'))
+    cfg = json.load(open('tars.cfg'))
     access_token = cfg.get('access_token')
 
     if access_token == None:
