@@ -1,6 +1,7 @@
 ## Tars
 
-Tars is a bot which will automatically merge PR's raised by greenkeeper-io if all the tests pass. 
+Tars is a bot which will automatically merge PR's raised by greenkeeper-io if all the tests pass. It is designed
+specifically for [devlog](https://github.com/Dineshs91/devlog) project.
 
 Have a file ```tars.cfg``` with the below config in the root directory
 
