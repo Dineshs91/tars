@@ -13,6 +13,7 @@ DEVLOG_BOT = 'devlog-bot'
 
 owner = 'dineshs91'
 repo = 'devlog'
+access_token = ''
 
 
 def add_log(msg):
@@ -83,13 +84,14 @@ def check_and_merge(pull_number, ref, sha, title):
         merge_pr(pull_number, sha, title)
 
 def main():
+    global access_token
     add_log('Job started')
 
     # Parsing config
     cfg = json.load(open('tars.cfg'))
     access_token = cfg.get('access_token')
 
-    if access_token == None:
+    if access_token == '':
         add_log('Failed to fetch access token')
         return
 
