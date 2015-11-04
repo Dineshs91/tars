@@ -42,7 +42,7 @@ def create_comment(pull_number, message, access_token):
                   data=data,
                   headers=headers)
 
-def merge_pr(pull_number, sha, title):
+def merge_pr(pull_number, sha, title, ref):
     # Process title to remove any use of breaks build
     title = title.replace('breaks build 🚨', 'update')
 
@@ -60,6 +60,13 @@ def merge_pr(pull_number, sha, title):
                         headers=headers)
     resp_text = json.loads(resp.text)
     add_log(resp_text)
+
+    # Delete a branch after merging
+    add_log('Deleting branch %s' %ref)
+    resp = requests.delete('https://api.github.com/repos/%s/%s/git/refs/heads/%s'
+                    %(owner, repo, ref))
+    if resp.status_code == '204':
+        add_log('Successfully deleted branch %s' %ref)
 
     # Delay of 3 mins (180 secs)
     time.sleep(180)
@@ -81,7 +88,7 @@ def check_and_merge(pull_number, ref, sha, title):
         create_comment(pull_number, "This PR cannot be merged by me(bot).", access_token)
         return
     elif status == 'success' and is_mergeable:
-        merge_pr(pull_number, sha, title)
+        merge_pr(pull_number, sha, title, ref)
 
 def main():
     global access_token
@@ -105,8 +112,9 @@ def main():
     for content in pr_content:
         user = content.get('user').get('login')
         pull_number = content.get('number')
-        ref = content.get('head').get('ref').encode('utf8')
-        sha = content.get('head').get('sha').encode('utf8')
+        head = content.get('head')
+        ref = head.get('ref').encode('utf8')
+        sha = head.get('sha').encode('utf8')
         title = content.get('title').encode('utf8')
     
         if user == GREENKEEPER_BOT:
