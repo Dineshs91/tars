@@ -15,9 +15,24 @@ owner = 'dineshs91'
 repo = 'devlog'
 access_token = ''
 
+headers = {
+    'Authorization': 'token %s' %access_token,
+}
+
 
 def add_log(msg):
     print '[%s]: %s' %(time.asctime(), msg)
+
+# Delete a branch
+def delete_branch(ref):
+    add_log('Deleting branch %s' %ref)
+    resp = requests.delete('https://api.github.com/repos/%s/%s/git/refs/heads/%s'
+                          %(owner, repo, ref),
+                          headers=headers)
+    if resp.status_code == '204':
+        add_log('Successfully deleted branch %s' %ref)
+    else:
+        add_log('Unable to delete branch %s' %ref)
 
 # Check if bot has already added a comment
 def has_bot_comment(pull_number):
@@ -34,10 +49,6 @@ def create_comment(pull_number, message, access_token):
         'body': message
     })
 
-    headers = {
-        'Authorization': 'token %s' %access_token,
-    }
-
     requests.post('https://api.github.com/repos/%s/%s/issues/%d/comments' %(owner, repo, pull_number),
                   data=data,
                   headers=headers)
@@ -51,10 +62,6 @@ def merge_pr(pull_number, sha, title, ref):
         'sha': sha
     })
 
-    headers = {
-        'Authorization': 'token %s' %access_token,
-    }
-
     resp = requests.put('https://api.github.com/repos/%s/%s/pulls/%d/merge' %(owner, repo, pull_number), 
                         data=data,
                         headers=headers)
@@ -62,11 +69,7 @@ def merge_pr(pull_number, sha, title, ref):
     add_log(resp_text)
 
     # Delete a branch after merging
-    add_log('Deleting branch %s' %ref)
-    resp = requests.delete('https://api.github.com/repos/%s/%s/git/refs/heads/%s'
-                    %(owner, repo, ref))
-    if resp.status_code == '204':
-        add_log('Successfully deleted branch %s' %ref)
+    delete_branch(ref)
 
     # Delay of 3 mins (180 secs)
     time.sleep(180)
