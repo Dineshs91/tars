@@ -15,9 +15,7 @@ owner = 'dineshs91'
 repo = 'devlog'
 access_token = ''
 
-headers = {
-    'Authorization': 'token %s' %access_token,
-}
+headers = {}
 
 
 def add_log(msg):
@@ -94,7 +92,7 @@ def check_and_merge(pull_number, ref, sha, title):
         merge_pr(pull_number, sha, title, ref)
 
 def main():
-    global access_token
+    global access_token, headers
     add_log('Job started')
 
     # Parsing config
@@ -104,6 +102,10 @@ def main():
     if access_token == '':
         add_log('Failed to fetch access token')
         return
+
+    headers = {
+        'Authorization': 'token %s' %access_token,
+    }
 
     pull_requests = requests.get('https://api.github.com/repos/%s/%s/pulls' %(owner, repo))
     pr_content = json.loads(pull_requests.text)
