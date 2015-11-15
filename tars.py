@@ -27,7 +27,7 @@ def delete_branch(ref):
     resp = requests.delete('https://api.github.com/repos/%s/%s/git/refs/heads/%s'
                           %(owner, repo, ref),
                           headers=headers)
-    if resp.status_code == '204':
+    if resp.status_code == 204:
         add_log('Successfully deleted branch %s' %ref)
     else:
         add_log('Unable to delete branch %s' %ref)
