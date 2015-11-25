@@ -96,7 +96,7 @@ def check_and_merge(pull_number, ref, sha, title):
 def check_network_connection():
     try:
         requests.get('https://api.github.com')
-    except:
+    except ConnectionError:
         add_log('Error: There is a network problem. Please check your \
                 internet connection or try again later.')
         return False
