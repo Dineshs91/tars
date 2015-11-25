@@ -91,9 +91,22 @@ def check_and_merge(pull_number, ref, sha, title):
     elif status == 'success' and is_mergeable:
         merge_pr(pull_number, sha, title, ref)
 
+def check_network_connection():
+    try:
+        requests.get('https://api.github.com')
+    except:
+        add_log('Error: There is a network problem. Please check your \
+                internet connection or try again later.')
+        return False
+    return True
+
 def main():
     global access_token, headers
     add_log('Job started')
+
+    # Quit if there are any network issues.
+    if not check_network_connection():
+        return
 
     # Parsing config
     cfg = json.load(open('tars.cfg'))
