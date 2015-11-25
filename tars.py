@@ -50,6 +50,7 @@ def create_comment(pull_number, message, access_token):
     requests.post('https://api.github.com/repos/%s/%s/issues/%d/comments' %(owner, repo, pull_number),
                   data=data,
                   headers=headers)
+    add_log('Added a comment to PR #%s' %pull_number)
 
 def merge_pr(pull_number, sha, title, ref):
     # Process title to remove any use of breaks build
@@ -87,6 +88,7 @@ def check_and_merge(pull_number, ref, sha, title):
 
     if status == 'success' and not is_mergeable and not has_bot_comment(pull_number):
         create_comment(pull_number, "This PR cannot be merged by me(bot).", access_token)
+        add_log("PR #%s cannot be merged automatically " %pull_number)
         return
     elif status == 'success' and is_mergeable:
         merge_pr(pull_number, sha, title, ref)
@@ -126,6 +128,9 @@ def main():
     if isinstance(pr_content, dict):
         add_log(pull_requests.status_code + pr_content.get('message'))
         return
+
+    if not pr_content:
+        add_log('No open pull requests found')
 
     for content in pr_content:
         user = content.get('user').get('login')
