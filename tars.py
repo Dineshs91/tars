@@ -34,7 +34,6 @@ def close_pr(pull_number):
                           data=data,
                           headers=headers)
 
-# Delete a branch
 def delete_branch(ref):
     add_log('Deleting branch %s' %ref)
     resp = requests.delete('https://api.github.com/repos/%s/%s/git/refs/heads/%s'
@@ -130,7 +129,7 @@ def main():
     if not check_network_connection():
         return
 
-    # Parsing config
+    # Parse config
     cfg = json.load(open('tars.cfg'))
     access_token = cfg.get('access_token')
 
