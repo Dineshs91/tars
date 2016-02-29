@@ -64,7 +64,7 @@ def create_comment(pull_number, message, access_token):
                   headers=headers)
     add_log('Added a comment to PR #%s' %pull_number)
 
-def merge_pr(pull_number, sha, title, ref):
+def merge_pr(pull_number, sha, title):
     # Process title to remove any use of breaks build
     title = title.replace('breaks build 🚨', 'update')
 
@@ -78,9 +78,6 @@ def merge_pr(pull_number, sha, title, ref):
                         headers=headers)
     resp_text = json.loads(resp.text)
     add_log(resp_text)
-
-    # Delete a branch after merging
-    delete_branch(ref)
 
     # Delay of 3 mins (180 secs)
     time.sleep(180)
@@ -106,7 +103,9 @@ def check_and_merge(pull_number, ref, sha, title):
         add_log("PR #%s cannot be merged automatically " %pull_number)
         return
     elif status == 'success' and is_mergeable:
-        merge_pr(pull_number, sha, title, ref)
+        merge_pr(pull_number, sha, title)
+        # Delete a branch after merging
+        delete_branch(ref)
     elif status != 'success' and created_at_month < current_month:
         # close pr's that were created a month ago and delete branch
         close_pr(pull_number)
