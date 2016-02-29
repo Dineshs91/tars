@@ -4,6 +4,8 @@
 import os
 import json
 import time
+import datetime
+import dateutil.parser
 
 import requests
 
@@ -20,6 +22,17 @@ headers = {}
 
 def add_log(msg):
     print '[%s]: %s' %(time.asctime(), msg)
+
+def close_pr(pull_number):
+    add_log('Closing pr %d' %pull_number)
+    data = json.dumps({
+        'state': 'closed'
+    })
+
+    resp = requests.patch('https://api.github.com/repos/%s/%s/pulls/%d'
+                          %(owner, repo, pull_number),
+                          data=data,
+                          headers=headers)
 
 # Delete a branch
 def delete_branch(ref):
@@ -85,6 +98,9 @@ def check_and_merge(pull_number, ref, sha, title):
 
     single_pr_content = json.loads(single_pr.text)
     is_mergeable = single_pr_content.get('mergeable')
+    created_at = single_pr_content.get('created_at')
+    created_at_month = dateutil.parser.parse(created_at).month
+    current_month = datetime.datetime.now().month
 
     if status == 'success' and not is_mergeable and not has_bot_comment(pull_number):
         create_comment(pull_number, "This PR cannot be merged by me(bot).", access_token)
@@ -92,6 +108,10 @@ def check_and_merge(pull_number, ref, sha, title):
         return
     elif status == 'success' and is_mergeable:
         merge_pr(pull_number, sha, title, ref)
+    elif status != 'success' and created_at_month < current_month:
+        # close pr's that were created a month ago and delete branch
+        close_pr(pull_number)
+        delete_branch(ref)
 
 def check_network_connection():
     try:
